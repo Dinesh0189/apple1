@@ -363,8 +363,8 @@ window.changeTab = (tabName, fromListener = false) => {
 // --- DASHBOARD: SMART LAYOUT ---
 function getSmartLayout() {
     let components = [
-        { id: 'agenda', priority: 10, component: renderAgendaCard, width: 2, height: 2, focus: true },
-        { id: 'utilities', priority: 8, component: renderUtilitiesCard, width: 2, height: 2, focus: true },
+        { id: 'agenda', priority: 10, component: renderAgendaCard, width: 2, height: 2 },
+        { id: 'utilities', priority: 8, component: renderUtilitiesCard, width: 2, height: 2 },
         { id: 'habits', priority: 7, component: renderHabitsOverviewCard, width: 2, height: 1 },
         { id: 'analytics', priority: 6, component: renderAnalyticsCard, width: 2, height: 1 },
     ];
@@ -388,11 +388,6 @@ function updateClock() {
         dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
         timeEl.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     }
-}
-
-window.toggleFocusMode = () => {
-    document.body.classList.toggle('focus-mode');
-    soundManager.playSound('uiClick', document.body.classList.contains('focus-mode') ? 'E4' : 'C4');
 }
 
 function renderDashboard() {
@@ -424,10 +419,6 @@ function renderDashboard() {
                  <div class="control-group theme-control">
                       <select id="theme-dashboard-select" onchange="changeTheme(this.value)" class="pro-input !text-sm !p-2 !pr-8">${themeOptions}</select>
                  </div>
-                <button onclick="toggleFocusMode()" class="secondary-btn focus-control" title="Toggle Focus Mode">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><circle cx="12" cy="12" r="3"></circle><path d="M7 12h-4"></path><path d="M12 7V3"></path><path d="M17 12h4"></path><path d="M12 17v4"></path></svg>
-                    <span class="hidden md:inline">Focus</span>
-                </button>
             </div>
         </header>
         <div id="smart-layout-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[220px]"></div>
@@ -445,7 +436,6 @@ function renderDashboard() {
             card.classList.remove('no-hover');
             card.setAttribute('onclick', 'openScheduleModal()');
         }
-        if (item.focus) card.classList.add('focus-priority');
         card.style.gridColumn = `span ${item.width}`;
         card.style.gridRow = `span ${item.height}`;
         card.style.setProperty('--animation-delay', `${index * 100}ms`);
@@ -660,7 +650,8 @@ function renderAnalyticsChart() {
         options: {
             responsive: true, maintainAspectRatio: false,
             scales: {
-                y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.1)' }, ticks: { color: 'var(--text-secondary)', callback: val => val + '%' } },
+                y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.1)' }, ticks: { color: 'var(--text-secondary)', callback: val => val + '%' } }
+                ,
                 x: { grid: { display: false }, ticks: { color: 'var(--text-secondary)' } }
             },
             plugins: { legend: { display: false }, tooltip: { enabled: true, callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toFixed(0)}%` } } }
@@ -1974,8 +1965,16 @@ function renderUtilitiesCard() {
             <div class="flex items-center justify-between mb-4">
                  <h3 class="text-xl font-semibold text-header tracking-tight">Time Tools</h3>
                  <div class="flex items-center border border-[--card-border] rounded-lg p-1">
-                     <button id="utility-timer-btn" onclick="switchUtilityView('timer')" class="pro-btn text-xs !py-1 !px-3">Timer</button>
-                     <button id="utility-stopwatch-btn" onclick="switchUtilityView('stopwatch')" class="secondary-btn text-xs !py-1 !px-3">Stopwatch</button>
+                     <button id="utility-timer-btn" onclick="switchUtilityView('timer')" class="pro-btn text-xs !py-1 !px-3">
+                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                             <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+                         </svg>
+                     </button>
+                     <button id="utility-stopwatch-btn" onclick="switchUtilityView('stopwatch')" class="secondary-btn text-xs !py-1 !px-3">
+                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 15 15"></polyline><path d="M16 2h-4v2"></path><path d="M12 2v2"></path>
+                         </svg>
+                     </button>
                  </div>
             </div>
 
@@ -1987,11 +1986,19 @@ function renderUtilitiesCard() {
                         <span>:</span>
                         <input id="timer-seconds" type="number" min="0" max="59" value="00" class="pro-input">
                     </div>
-                    <div class="utility-controls w-full">
-                        <button onclick="startTimer()" class="pro-btn text-sm !py-2">Start</button>
-                        <button onclick="pauseTimer()" class="secondary-btn text-sm !py-2">Pause</button>
-                        <button onclick="resetTimer()" class="danger-btn text-sm !py-2">Reset</button>
-                        <button onclick="startTimerWithPreset(25)" class="secondary-btn text-sm !py-2 col-span-3 md:col-span-1">Pomodoro (25m)</button>
+                    <div class="utility-controls w-full flex justify-center gap-4">
+                        <button onclick="startTimer()" class="pro-btn icon-btn" title="Start">
+                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        </button>
+                        <button onclick="pauseTimer()" class="secondary-btn icon-btn" title="Pause">
+                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+                        </button>
+                        <button onclick="resetTimer()" class="danger-btn icon-btn" title="Reset">
+                            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21.5 6.5l-2.2-2.2a.5.5 0 0 0-.7-.1l-1.3 1.3a.5.5 0 0 0-.1.7l1.3 1.3"></path>
+                                <path d="M12 3a9 9 0 1 0 9 9h-3a6 6 0 1 1-6-6z"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1999,11 +2006,24 @@ function renderUtilitiesCard() {
             <div id="utility-stopwatch-view" class="flex-grow flex flex-col hidden">
                  <div class="flex flex-col items-center justify-center flex-grow">
                      <div id="stopwatch-display" class="digital-display text-4xl mb-4">00:00:00</div>
-                     <div class="utility-controls w-full">
-                         <button onclick="startStopwatch()" class="pro-btn text-sm !py-2">Start</button>
-                         <button onclick="pauseStopwatch()" class="secondary-btn text-sm !py-2">Pause</button>
-                         <button onclick="lapStopwatch()" class="secondary-btn text-sm !py-2">Lap</button>
-                         <button onclick="resetStopwatch()" class="danger-btn text-sm !py-2">Reset</button>
+                     <div class="utility-controls w-full flex justify-center gap-4">
+                         <button onclick="startStopwatch()" class="pro-btn icon-btn" title="Start">
+                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                         </button>
+                         <button onclick="pauseStopwatch()" class="secondary-btn icon-btn" title="Pause">
+                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+                         </button>
+                         <button onclick="lapStopwatch()" class="secondary-btn icon-btn" title="Lap">
+                            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line>
+                            </svg>
+                         </button>
+                         <button onclick="resetStopwatch()" class="danger-btn icon-btn" title="Reset">
+                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21.5 6.5l-2.2-2.2a.5.5 0 0 0-.7-.1l-1.3 1.3a.5.5 0 0 0-.1.7l1.3 1.3"></path>
+                                <path d="M12 3a9 9 0 1 0 9 9h-3a6 6 0 1 1-6-6z"></path>
+                            </svg>
+                         </button>
                      </div>
                      <div class="laps-container w-full mt-2">
                          <ul id="laps-list" class="laps-list"></ul>
