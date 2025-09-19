@@ -160,7 +160,7 @@ body.pro-plus-animated-background::before {
     position: absolute;
     inset: 0;
     background: transparent
-    backdrop-filter: blur(8px);
+    /*backdrop-filter: blur(8px);*/
     z-index: -1;
 }
 /* CUSTOM TEXT SELECTION */
@@ -918,6 +918,7 @@ input.toggle-switch:checked + .toggle-switch-slider:before {
         font-size: 1.875rem; /* 30px */
     }
 }
+
 
 
 
